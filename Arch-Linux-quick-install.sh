@@ -130,7 +130,7 @@ reset
 
 echo "Well, install is finished, Let's do some config"
 genfstab -U -p /mnt >> /mnt/etc/fstab
-export rootpart ${rootpart}
+export rootpart=${rootpart}
 mkdir /mnt/root
 
 
@@ -181,7 +181,19 @@ echo -e "${rootpass}\n${rootpass}"|passwd
 
 
 pacman -S --noconfirm grub
-pacman -S --noconfirm os-prober
+
+
+
+echo -en "Do you need grub boot other system? Y/N\n
+(If you want, I'll install os-prober): "
+read bootothersys
+
+if [ ${bootothersys} = Y ] | [ ${bootothersys} = y ];then
+	pacman -S --noconfirm os-prober
+fi
+
+
+
 grub-install --target=i386-pc --recheck $(echo "${rootpart}" | cut -c 1-8)
 grub-mkconfig -o /boot/grub/grub.cfg
 FileEOF
