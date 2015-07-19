@@ -113,7 +113,7 @@ case ${swap} in
 		echo ""
 esac
 
-read -p "okay, now please tell me what is the path of root partition: " rootpart
+read -p "Enter the path of your root partition: " rootpart
 if [ $(echo ${rootpart} | cut -c 1-4) != /dev ];then
 	rootpart=/dev/${rootpart}
 fi
