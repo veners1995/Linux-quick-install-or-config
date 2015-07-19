@@ -150,11 +150,13 @@ hwclock --systohc --utc
 
 
 
-read -p "Wich hostname do you like?: " host
-echo ${host} > /etc/hostname
+read -p "Wich hostname do you like?: " hostnm
+echo ${hostnm} > /etc/hostname
+
 grep 1 /etc/hosts > /root/hosts
-echo "$(sed -n '1p' /root/hosts) ${host}" > /etc/hosts 
-echo "$(sed -n '2p' /root/hosts) ${host}" > /etc/hosts 
+rm /etc/hosts > /dev/null 2>&1
+echo "$(sed -n '1p' /root/hosts) ${hostnm}" >> /etc/hosts 
+echo "$(sed -n '2p' /root/hosts) ${hostnm}" >> /etc/hosts 
 
 
 
@@ -176,12 +178,10 @@ systemctl enable dhcpcd@${ifn}
 
 
 read -p "Please enter your root password that you like: " rootpass
-echo -e "${rootpass}\n${rootpass}"|passwd
-
+echo "root:${rootpass}" | chpasswd
 
 
 pacman -S --noconfirm grub
-
 
 
 echo -en "Do you need grub boot other system? Y/N\n
@@ -196,6 +196,7 @@ fi
 
 grub-install --target=i386-pc --recheck $(echo "${rootpart}" | cut -c 1-8)
 grub-mkconfig -o /boot/grub/grub.cfg
+rm /root/*
 FileEOF
 
 

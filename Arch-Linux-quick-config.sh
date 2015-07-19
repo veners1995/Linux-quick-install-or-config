@@ -29,6 +29,7 @@ softwareInstallCmd['gedit']='sudo pacman -S --noconfirm gedit'
 softwareInstallCmd['leafpad']='sudo pacman -S --noconfirm leafpad'
 softwareInstallCmd['smplayer']='sudo pacman -S --noconfirm smplayer'
 softwareInstallCmd['vlc']='sudo pacman -S --noconfirm vlc'
+softwareInstallCmd['mpv']='sudo pacman -S --noconfirm mpv'
 softwareInstallCmd['firefox']='sudo pacman -S --noconfirm firefox'
 softwareInstallCmd['opera']='sudo pacman -S --noconfirm opera'
 #桌面环境
@@ -365,7 +366,7 @@ clear
 
 
 cat << EOF
-现在，我们来挑选一个音视播放器。本版本共提供SMPlayer和VLC，个人推荐SMPlayer。
+现在，我们来挑选一个音视播放器。本版本提供SMPlayer、mpv和VLC。
 
 
 请选择您喜欢的播放器，选择smplayer请输入1，VLC请输入2。3,不安装
@@ -376,7 +377,7 @@ echo "#安装视频播放器" >> continue.sh
 
 PS3='请输入1-3：'
 echo ""
-chooseSoftware 'smplayer' 'vlc' '不安装视频播放器'
+chooseSoftware 'smplayer' 'vlc' '不安装视频播放器' 'mpv'
 echo "" >> continue.sh
 clear
 
