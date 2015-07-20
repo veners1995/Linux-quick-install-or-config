@@ -90,35 +90,53 @@ EOF
 zsh
 reset
 
+
+while true
+do
+
 echo -e "I think you've done the partition, so let's install now.\n"
 read -p "Do you have a swap partition? Y/N: " swap
-lsblk
 
 case ${swap} in
 	Y|y)
-		read -p "Enter the path of the swap partition(Like /dev/sda5, or just sda5): " swappart
+		lsblk
+		read -p "Enter the path of the swap partition: " swappart
+
 		if [ $(echo ${swappart} | cut -c 1-4) != /dev ];then
 			swappart=/dev/${swappart};
 		fi
+
 		mkswap ${swappart} > /dev/null 2>&1
 		swapoff ${swappart} > /dev/null 2>&1
 		swapon ${swappart} > /dev/null 2>&1
-		echo ""
+		reset
+		break
 		;;
 	N|n)
-		echo ""
+		break
 		;;
 	*)
-		echo "Hey, your choose is wrong. Let's try again."
-		echo ""
+		echo -e "Hey, your choose is wrong. Let's try again.\n"
 esac
+done
+
+while true
+do
 
 read -p "Enter the path of your root partition: " rootpart
+
 if [ $(echo ${rootpart} | cut -c 1-4) != /dev ];then
 	rootpart=/dev/${rootpart}
 fi
+if [ ! -e ${rootpart} ];then
+	echo "This partition doesn't exists. Please check your type."
+else
+	break
+fi
 
-umount /mnt
+done
+
+umount /mnt 2> /dev/null
 mount ${rootpart} /mnt
 
 curl "https://www.archlinux.org/mirrorlist/?country=CN&protocol=http&ip_version=4" -o /root/mirrorlist
@@ -154,26 +172,37 @@ read -p "Wich hostname do you like?: " hostnm
 echo ${hostnm} > /etc/hostname
 
 grep 1 /etc/hosts > /root/hosts
-rm /etc/hosts > /dev/null 2>&1
-echo "$(sed -n '1p' /root/hosts) ${hostnm}" >> /etc/hosts 
-echo "$(sed -n '2p' /root/hosts) ${hostnm}" >> /etc/hosts 
+rm -f /etc/hosts > /dev/null 2>&1
+echo "127.0.0.1       localhost.localdomain   localhost ${hostnm}" >> /etc/hosts 
+echo "::1             localhost.localdomain   localhost ${hostnm}" >> /etc/hosts 
 
 
+
+while true
+do
 
 echo -en "Do you need wireless? Y/N\n
 (If you want, I'll install dialog to run wifi-menu.): "
 read wireless
 
-
-
-if [ ${wireless} = Y ] | [ ${wireless} = y ];then
-	pacman -S --noconfirm dialog
-fi
+case ${wireless} in
+	Y|y)
+		pacman -S --noconfirm dialog
+		break
+		;;
+	N|n)
+		break
+		;;
+	*)
+		echo -e "Hey, your choose is wrong. Let's try again.\n"
+		;;
+esac
+done
 
 
 
 ifn=$(ls /sys/class/net/|grep e)
-systemctl enable dhcpcd@${ifn}
+systemctl enable dhcpcd@${ifn}.service
 
 
 
@@ -184,13 +213,26 @@ echo "root:${rootpass}" | chpasswd
 pacman -S --noconfirm grub
 
 
+while true
+do
+
 echo -en "Do you need grub boot other system? Y/N\n
 (If you want, I'll install os-prober): "
 read bootothersys
 
-if [ ${bootothersys} = Y ] | [ ${bootothersys} = y ];then
-	pacman -S --noconfirm os-prober
-fi
+case ${bootothersys} in
+	Y|y)
+		pacman -S --noconfirm os-prober
+		break
+		;;
+	N|n)
+		break
+		;;
+	*)
+		echo -e "Hey, your choose is wrong. Let's try again.\n"
+		;;
+esac
+done
 
 
 
@@ -201,7 +243,6 @@ FileEOF
 
 
 arch-chroot /mnt /bin/bash /root/config.sh
-
 reset
 echo -en "\e[1;31mThanks for use.\e[0m";echo -en "\e[1;36m Install\e[0m"; echo -e "\e[1;32m Finished.\e[0m"
 echo -e "\e[1;35mDo you want reboot now? Y/N: \e[0m"
