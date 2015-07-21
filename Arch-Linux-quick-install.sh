@@ -91,60 +91,101 @@ zsh
 reset
 
 
+echo -e "I think you've done the partition, so let's install now.\n"
 while true
 do
 
-echo -e "I think you've done the partition, so let's install now.\n"
-read -p "Do you have a swap partition? Y/N: " swap
+	read -p "Do you have a swap partition? Y/N: " swap
 
-case ${swap} in
-	Y|y)
-		read -p "Enter the path of the swap partition: " swappart
-		lsblk
+	case ${swap} in
+		Y|y)
+			lsblk
+			read -p "Enter the path of the swap partition: " swappart
 
-		if [ $(echo ${swappart} | cut -c 1-4) != /dev ];then
-			swappart=/dev/${swappart}
-		fi
+			if [ $(echo ${swappart} | cut -c 1-4) != /dev ];then
+				swappart=/dev/${swappart}
+			fi
 
-		if [ ! -e ${swappart} ];then
-			echo "This partition doesn't exists. Please check your type."
-		else
+			if [ ! -e ${swappart} ];then
+				echo "This partition doesn't exists. Please check your type."
+			else
+				break
+			fi
+
+			mkswap ${swappart} > /dev/null 2>&1
+			swapoff ${swappart} > /dev/null 2>&1
+			swapon ${swappart} > /dev/null 2>&1
+			reset
 			break
-		fi
-
-		mkswap ${swappart} > /dev/null 2>&1
-		swapoff ${swappart} > /dev/null 2>&1
-		swapon ${swappart} > /dev/null 2>&1
-		reset
-		break
-		;;
-	N|n)
-		break
-		;;
-	*)
-		echo -e "Hey, your choose is wrong. Let's try again.\n"
-esac
+			;;
+		N|n)
+			break
+			;;
+		*)
+			echo "Hey, your choose is wrong. Let's try again."
+	esac
 done
 
 while true
 do
+	clear
+	lsblk
+	read -p "Enter the path of your root partition: " rootpart
 
-lsblk
-read -p "Enter the path of your root partition: " rootpart
+	if [ $(echo ${rootpart} | cut -c 1-4) != /dev ];then
+		rootpart=/dev/${rootpart}
+	fi
 
-if [ $(echo ${rootpart} | cut -c 1-4) != /dev ];then
-	rootpart=/dev/${rootpart}
-fi
-if [ ! -e ${rootpart} ];then
-	echo "This partition doesn't exists. Please check your type."
-else
-	break
-fi
+	if [ ! -e ${rootpart} ];then
+		echo "This partition doesn't exists. Please check your type."
+	else
+		break
+	fi
+done
 
+echo -n "Do you have other partitions that need mount?(such as /home, /boot, etc.) Y/N: "
+
+while true
+do
+	read mountother
+	case ${mountother} in
+		Y|y)
+			lsblk
+			echo -en "\nPlease enter the type of the partition that you want to mount(home、boot...): "
+			read othertype
+
+			echo -en "\nNow enter the path: "
+			read otherpath
+
+			if [ $(echo ${otherpath} | cut -c 1-4) != /dev ];then
+				otherpath=/dev/${otherpath}
+			fi
+
+			if [ ! -e ${rootpart} ];then
+				echo "This partition doesn't exists. Please check your type."
+			else
+				break
+			fi
+
+			read -p "Will mount ${otherpath} to /mnt/${othertype}. Are you sure? Y/N: " sure
+			if [ ${sure} == Y ] || [ ${sure} == y ];then
+
+				mkdir /mnt/${othertype}
+				mount ${otherpath} /mnt/${othertype}
+			fi
+			echo -en " Do you have the other partitions that need mount? Y/N: "
+			;;
+
+		N|n)
+			break
+			;;
+		*)
+			echo -n "Hey, your choose is wrong. Let's try again: "
+	esac
 done
 
 umount /mnt 2> /dev/null
-mount ${rootpart} /mnt
+mount -v ${rootpart} /mnt
 
 curl "https://www.archlinux.org/mirrorlist/?country=CN&protocol=http&ip_version=4" -o /root/mirrorlist
 grep Server /root/mirrorlist | sed 's/^#//g' > /etc/pacman.d/mirrorlist
@@ -186,32 +227,33 @@ echo "::1             localhost.localdomain   localhost \${hostnm}" >> /etc/host
 while true
 do
 
-echo -en "\n\nDo you need wireless? Y/N\n
-(If you want, I'll install dialog and wpa_supplicant to run wifi-menu.): "
-read wireless
+	echo -en "\n\nDo you need wireless? Y/N\n
+	(If you want, I'll install dialog and wpa_supplicant to run wifi-menu.): "
+	read wireless
 
-case \${wireless} in
-	Y|y)
-		pacman -S --noconfirm dialog wpa_supplicant
-		break
-		;;
-	N|n)
-		break
-		;;
-	*)
-		echo -e "Hey, your choose is wrong. Let's try again.\n"
-		;;
-esac
+	case \${wireless} in
+		Y|y)
+			pacman -S --noconfirm dialog wpa_supplicant
+			break
+			;;
+		N|n)
+			break
+			;;
+		*)
+			echo "Hey, your choose is wrong. Let's try again."
+			;;
+	esac
 done
 
 
 
-ifn=$(ls /sys/class/net/|grep e)
-systemctl enable dhcpcd@\${ifn}.service
+
+systemctl enable dhcpcd@\$(ls /sys/class/net/ | grep e)
 
 
+echo -en "\nPlease enter your root password that you like: "
 
-read -p "Please enter your root password that you like: " rootpass
+read -p rootpass
 echo "root:\${rootpass}" | chpasswd
 
 
@@ -221,22 +263,22 @@ pacman -S --noconfirm grub
 while true
 do
 
-echo -en "\n\nDo you need grub boot other system? Y/N\n
-(If you want, I'll install os-prober): "
-read bootothersys
+	echo -en "\n\nDo you need grub boot other system? Y/N\n
+	(If you want, I'll install os-prober): "
+	read bootothersys
 
-case \${bootothersys} in
-	Y|y)
-		pacman -S --noconfirm os-prober
-		break
-		;;
-	N|n)
-		break
-		;;
-	*)
-		echo -e "Hey, your choose is wrong. Let's try again.\n"
-		;;
-esac
+	case \${bootothersys} in
+		Y|y)
+			pacman -S --noconfirm os-prober
+			break
+			;;
+		N|n)
+			break
+			;;
+		*)
+			echo "Hey, your choose is wrong. Let's try again."
+			;;
+	esac
 done
 
 
@@ -248,7 +290,7 @@ FileEOF
 
 
 arch-chroot /mnt /bin/bash /root/config.sh
-umount /mnt
+umount /mnt 2> /dev/null
 reset
 echo -en "\e[1;31mThanks for use.\e[0m";echo -en "\e[1;36m Install\e[0m"; echo -e "\e[1;32m Finished.\e[0m"
 echo -e "\e[1;35mDo you want reboot now? Y/N: \e[0m"
