@@ -41,8 +41,8 @@ softwareInstallCmd['mate']='sudo pacman -S --noconfirm mate'
 
 function chooseSoftware
 {
-	unset choose
-	select choose in $@;do
+	PS3='请输入选项：'
+	select choose in "$@";do
 		if [ ${choose:-NONE} == 'NONE' ];then
 			continue;
 		elif [ ${choose} != '不安装' ];then
@@ -105,7 +105,7 @@ clear
 
 
 
-echo ""
+echo
 echo "#安装必要组件" >> continue.sh
 echo "sudo pacman -S --noconfirm wget" >> continue.sh
 echo "sudo pacman -S --noconfirm git" >> continue.sh
@@ -116,21 +116,21 @@ echo "sudo pacman -S --noconfirm xorg-server" >> continue.sh
 echo "sudo pacman -S --noconfirm xorg-xinit" >> continue.sh
 echo "cp /etc/X11/xinit/xinitrc ~/.xinitrc" >> continue.sh
 echo "sed -i '\$d' ~/.xinitrc" >> continue.sh
-echo "" >> continue.sh
+echo >> continue.sh
 
 
 
-echo -e "请问您是否想安装Yaourt？Yaourt作为pacman的一个外壳增加了对AUR的支持。\n"
+echo "请问您是否想安装Yaourt？Yaourt作为pacman的一个外壳增加了对AUR的支持。"
 
 while true
 do
 	read -n1 -p "请输入Y或N：" yaourt
-	echo ""
+	echo
 	if [ ${yaourt} = Y ] || [ ${yaourt} = y ];then
 		echo "#安装Yaourt" >> continue.sh
 		echo "mkdir yaourt" >> continue.sh
 		echo "cd yaourt" >> continue.sh
-		echo "" >> continue.sh
+		echo >> continue.sh
 		
 		echo "##安装依赖：package-query" >> continue.sh
 		echo "wget https://aur.archlinux.org/packages/pa/package-query/package-query.tar.gz" >> continue.sh
@@ -138,7 +138,7 @@ do
 		echo "cd package-query" >> continue.sh
 		echo "yes|makepkg -si" >> continue.sh
 		echo "cd .." >> continue.sh
-		echo "" >> continue.sh
+		echo >> continue.sh
 		
 		echo "##开始安装Yaourt" >> continue.sh
 		echo "wget https://aur.archlinux.org/packages/ya/yaourt/yaourt.tar.gz" >> continue.sh
@@ -147,7 +147,7 @@ do
 		echo "yes|makepkg -si" >> continue.sh
 		echo "cd .." >> continue.sh
 		echo "rm -rf yaourt" >> continue.sh
-		echo "" >> continue.sh
+		echo >> continue.sh
 		break
 	elif [ ${yaourt} = N ] || [ ${yaourt} = n ];then
 		echo "#不安装Yaourt" >> continue.sh
@@ -158,12 +158,12 @@ clear
 
 
 
-echo -e "请问您是否想安装Zsh？Zsh拥有比默认的Bash更加方便的设置与外观。\n"
+echo "请问您是否想安装Zsh？Zsh拥有比默认的Bash更加方便的设置与外观。"
 
 while true
 do
 	read -n1 -p "请输入Y或N：" zsh
-	echo ""
+	echo
 
 	if [ ${zsh} = Y ] || [ ${zsh} = y ];then
 		echo "#安装zsh" >> continue.sh
@@ -174,7 +174,7 @@ do
 		chsh -s /bin/zsh
 		echo "cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc" >> continue.sh
 		echo "chsh -s /bin/zsh" >> continue.sh
-		echo "" >> continue.sh
+		echo >> continue.sh
 		break
 	elif [ ${zsh} = N ] || [ ${zsh} = n ];then
 		echo "#不安装Zsh" >> continue.sh
@@ -201,12 +201,12 @@ EOF
 read -p "请按回车继续"  var
 clear
 echo "现在，请选择一个桌面环境：1、gnome  2、plasma  3、xfce4  4、cinnamon  5、mate。  6、不安装"
-echo ""
+echo
 echo "#安装桌面环境" >> continue.sh
 
 
-PS3='请输入1-6：'
-echo ""
+
+echo
 chooseSoftware 'gnome' 'plasma' 'xfce4' 'cinnamon' 'mate' '不安装桌面环境'
 #choose为保存用户选项的全局变量，定义于chooseSoftware函数中
 
@@ -216,11 +216,11 @@ gnome)
 	echo "echo 'exec gnome-session' >> ~/.xinitrc" >> continue.sh
 	clear
 	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等（建议安装）"
-	echo ""
+	echo
 	while true
 	do
 		read -n1 -p "请输入Y/N：" ge
-		echo ""
+		echo
 		if [ ${ge} = Y ] || [ ${ge} = y ];then
 			echo "sudo pacman -S --noconfirm gnome-extra" >> continue.sh
 			break
@@ -228,24 +228,24 @@ gnome)
 			break
 		fi
 	done
-	echo "" >> continue.sh
+	echo >> continue.sh
 ;;
 
 plasma)	
 	echo "echo 'exec startkde' >> ~/.xinitrc" >> continue.sh
-	echo "" >> continue.sh
+	echo >> continue.sh
 ;;
 
 xfce4)	
 	echo "echo 'exec startxfce4' >> ~/.xinitrc" >> continue.sh
-	echo "" >> continue.sh
+	echo >> continue.sh
 	clear
 	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等（建议安装）"
-	echo ""
+	echo
 	while true
 	do
 		read -n1 -p "请输入Y/N：" ge
-		echo ""
+		echo
 		if [ ${ge} = Y ] || [ ${ge} = y ];then
 			break
 			echo "sudo pacman -S --noconfirm xfce4-goodies" >> continue.sh
@@ -253,24 +253,24 @@ xfce4)
 			break
 		fi
 	done
-	echo "" >> continue.sh
+	echo >> continue.sh
 ;;
 
 cinnamon)	
 	echo "echo 'exec cinnamon-session' >> ~/.xinitrc" >> continue.sh
 	clear
-	echo "" >> continue.sh
+	echo >> continue.sh
 ;;
 
 mate)	
 	echo "echo 'exec mate-session' >> ~/.xinitrc" >> continue.sh
 	clear
 	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等（建议安装）"
-	echo ""
+	echo
 	while true
 	do
 		read -n1 -p "请输入Y/N：" ge
-		echo ""
+		echo
 		if [ ${ge} = Y ] || [ ${ge} = y ];then
 			echo "sudo pacman -S  --noconfirm mate-extra" >> continue.sh
 			break
@@ -278,7 +278,7 @@ mate)
 			break
 		fi
 	done
-	echo "" >> continue.sh
+	echo >> continue.sh
 	break
 ;;
 esac
@@ -288,12 +288,12 @@ esac
 
 clear
 echo "恭喜您完成了多半的配置了，现在让我们来看一下几个日常用的软件吧："
-echo ""
+echo
 echo "#安装Networkmanager网络管理器" >> continue.sh
 echo "sudo pacman -S --noconfirm networkmanager" >> continue.sh
 echo "sudo systemctl enable NetworkManager" >> continue.sh
 echo "sudo systemctl start NetworkManager" >> continue.sh
-echo "" >> continue.sh
+echo >> continue.sh
 
 cat << EOF
 首先，我们要为您安装中文输入法。
@@ -311,7 +311,7 @@ EOF
 while true
 do
 	read -n1 -p "请输入Y/N：" fci
-	echo ""
+	echo
 	if [ ${fci} = Y ] || [ ${fci} = y ];then
 		echo "#安装中文输入法" >> continue.sh
 		echo "sudo pacman -S --noconfirm fcitx" >> continue.sh
@@ -319,11 +319,11 @@ do
 		echo "sudo pacman -S --noconfirm fcitx-qt5" >> continue.sh
 		echo "sudo pacman -S --noconfirm fcitx-googlepinyin" >> continue.sh
 		echo "sudo pacman -S --noconfirm fcitx-configtool" >> continue.sh
-		echo "" >> continue.sh
+		echo >> continue.sh
 		break
 	elif [ ${fci} = N ] || [ ${fci} = n ];then
 		echo "#不安装中文输入法" >> continue.sh
-		echo ""
+		echo
 		break
 	fi
 done
@@ -343,9 +343,8 @@ EOF
 
 echo "#安装文本编辑器" >> continue.sh
 
-PS3='请输入1-5:'
 chooseSoftware 'gvim' 'emacs' 'gedit' 'leafpad' '不安装文本编辑器'
-echo "" >> continue.sh
+echo >> continue.sh
 
 if [ ${choose} == 'gvim' ];then
 	mv -f /etc/vimrc /etc/vimrc.backup 2> /dev/null
@@ -375,10 +374,9 @@ EOF
 
 echo "#安装视频播放器" >> continue.sh
 
-PS3='请输入1-3：'
-echo ""
+echo
 chooseSoftware 'smplayer' 'vlc' '不安装视频播放器' 'mpv'
-echo "" >> continue.sh
+echo >> continue.sh
 clear
 
 
@@ -396,19 +394,18 @@ EOF
 echo "#安装网页浏览器" >> continue.sh
 echo "sudo pacman -S --noconfirm flashplugin" >> continue.sh
 
-PS3='请输入1-3：'
-echo ""
+echo
 chooseSoftware 'firefox' 'opera' '不安装网页浏览器'
 clear
 if [ ${choose} == 'firefox' ];then
 	echo "请问您是否要安装Firefox的中文支持？安装后浏览器将改为中文界面。"
-	echo ""
+	echo
 	read -n1 -p "请输入Y/N：" chs
 	if [ ${chs} = Y ] || [ ${chs} = y ];then
 		echo "sudo pacman -S --noconfirm firefox-i18n-zh-cn" >> continue.sh
 	fi
 fi
-echo "" >> continue.sh
+echo >> continue.sh
 clear
 
 
@@ -428,7 +425,7 @@ do
 	if [ ${syna} = Y ] || [ ${syna} = y ];then
 		echo "#安装触摸板驱动" >> continue.sh
 		echo "sudo pacman -S --noconfirm  xf86-input-synaptics" >> continue.sh
-		echo "" >> continue.sh
+		echo >> continue.sh
 		break
 	fi
 
