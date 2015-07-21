@@ -60,9 +60,7 @@ if [ $(getconf LONG_BIT) = 64 ];then
 	sed -i '92,93d' /etc/pacman.conf >> /dev/null 2>&1
 	sed -i '91a Include = /etc/pacman.d/mirrorlist' /etc/pacman.conf >> /dev/null 2>&1
 	sed -i '91a [multilib]' /etc/pacman.conf >> /dev/null 2>&1
-	pacman -Syu --noconfirm >> /dev/null 2>&1
 fi
-
 
 sed -i '33d' /etc/pacman.conf >> /dev/null 2>&1
 sed -i '32a Color' /etc/pacman.conf >> /dev/null 2>&1
@@ -70,11 +68,13 @@ sed -i '34d' /etc/pacman.conf >> /dev/null 2>&1
 sed -i '33a TotalDownload' /etc/pacman.conf >> /dev/null 2>&1
 sed -i '36d' /etc/pacman.conf >> /dev/null 2>&1
 sed -i '35a VerbosePkgLists' /etc/pacman.conf >> /dev/null 2>&1
+pacman -Syy > /dev/null 2>&1
+sudo pacman -S --noconfirm {wget,git} > /dev/null 2>&1
 
 reset
 cat << EOF
 欢迎来到Linux-quick-install-or-config.
-（版本：Arch-Linux-quick-config, 2015年7月18日更新）
+（版本：Arch-Linux-quick-config, 2015年7月22日更新）
 
 首先，我们要为您创建一个普通用户（此用户为wheel用户组，可以使用sudo）
 
@@ -107,8 +107,6 @@ clear
 
 echo
 echo "#安装必要组件" >> continue.sh
-echo "sudo pacman -S --noconfirm wget" >> continue.sh
-echo "sudo pacman -S --noconfirm git" >> continue.sh
 echo "sudo pacman -S --noconfirm ntfs-3g" >> continue.sh
 echo "sudo pacman -S --noconfirm dosfstools" >> continue.sh
 echo "sudo pacman -S --noconfirm wqy-microhei" >> continue.sh
@@ -168,7 +166,7 @@ do
 	if [ ${zsh} = Y ] || [ ${zsh} = y ];then
 		echo "#安装zsh" >> continue.sh
 		pacman -S --noconfirm zsh
-		git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+		git clone https://github.com/robbyrussell/oh-my-zsh ~/.oh-my-zsh
 		cp -rf ~/.oh-my-zsh /home/${usrnm}/.oh-my-zsh
 		cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
 		chsh -s /bin/zsh
@@ -186,7 +184,7 @@ clear
 
 
 cat << EOF
-现在请您选择一个桌面环境：我们默认提供Gnome、Plasma（KDE5）、Xfce4、Cinnamon、和Mate
+现在请您选择一个桌面环境：我们当前提供Gnome、Plasma（KDE5）、Xfce4、Cinnamon、和Mate
 
 如果没有您需要的（如窗口管理器，我们将在下个版本添加）或是您不需要桌面环境
 那么请选择不安装然后自行安装您喜欢的桌面环境（或窗口管理器）
@@ -314,11 +312,7 @@ do
 	echo
 	if [ ${fci} = Y ] || [ ${fci} = y ];then
 		echo "#安装中文输入法" >> continue.sh
-		echo "sudo pacman -S --noconfirm fcitx" >> continue.sh
-		echo "sudo pacman -S --noconfirm fcitx-im" >> continue.sh
-		echo "sudo pacman -S --noconfirm fcitx-qt5" >> continue.sh
-		echo "sudo pacman -S --noconfirm fcitx-googlepinyin" >> continue.sh
-		echo "sudo pacman -S --noconfirm fcitx-configtool" >> continue.sh
+		echo "sudo pacman -S --noconfirm fcitx-{im,qt5,googlepinyin,configtool}" >> continue.sh
 		echo >> continue.sh
 		break
 	elif [ ${fci} = N ] || [ ${fci} = n ];then
@@ -347,18 +341,21 @@ chooseSoftware 'gvim' 'emacs' 'gedit' 'leafpad' '不安装文本编辑器'
 echo >> continue.sh
 
 if [ ${choose} == 'gvim' ];then
-	mv -f /etc/vimrc /etc/vimrc.backup 2> /dev/null
-	echo "set nocompatible" > /etc/vimrc
-	echo "set nu" >> /etc/vimrc
-	echo "filetype indent on" >> /etc/vimrc
-	echo "syntax enable" >> /etc/vimrc
-	echo "colorscheme murphy" >> /etc/vimrc
-	echo "set nobackup" >> /etc/vimrc
-	echo "set nowritebackup" >> /etc/vimrc
-	echo "set noswapfile" >> /etc/vimrc
-	echo "set wrapscan" >> /etc/vimrc
-	echo "set ruler" >> /etc/vimrc
-	echo "set backspace=indent,eol,start" >> /etc/vimrc
+
+cat > ${usrnm}/.vimrc << EOF
+set nocompatible" > /etc/vimrc
+set nu" >> /etc/vimrc
+filetype indent on" >> /etc/vimrc
+syntax enable" >> /etc/vimrc
+colorscheme murphy" >> /etc/vimrc
+set nobackup" >> /etc/vimrc
+set nowritebackup" >> /etc/vimrc
+set noswapfile" >> /etc/vimrc
+set wrapscan" >> /etc/vimrc
+set ruler" >> /etc/vimrc
+set backspace=indent,eol,start" >> /etc/vimrc
+EOF
+
 fi
 clear
 
@@ -375,7 +372,7 @@ EOF
 echo "#安装视频播放器" >> continue.sh
 
 echo
-chooseSoftware 'smplayer' 'vlc' '不安装视频播放器' 'mpv'
+chooseSoftware 'smplayer' 'vlc' 'mpv' '不安装视频播放器' 
 echo >> continue.sh
 clear
 
@@ -442,7 +439,7 @@ mv continue.sh.backup continue.sh
 rm -rf /var/log/*
 rm -rf /var/tmp/*
 rm -rf /tmp/*
-rm -rf `ls | grep -v "man"` > /dev/null 2>&1
+rm -rf $(ls | grep -v "man") > /dev/null 2>&1
 #清理一些垃圾文件
 
 clear
