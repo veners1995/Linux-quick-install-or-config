@@ -254,7 +254,7 @@ systemctl enable dhcpcd@\$(ls /sys/class/net/ | grep e)
 
 echo -en "\nPlease enter your root password that you like: "
 
-read rootpass
+read -s rootpass
 echo "root:\${rootpass}" | chpasswd
 
 
@@ -294,7 +294,7 @@ arch-chroot /mnt /bin/bash /root/config.sh
 umount /mnt 2> /dev/null
 reset
 echo -en "\e[1;31mThanks for use.\e[0m";echo -en "\e[1;36m Install\e[0m"; echo -e "\e[1;32m Finished.\e[0m"
-echo -e "\e[1;35mDo you want reboot now? Y/N: \e[0m"
+echo -en "\e[1;35mDo you want reboot now? Y/N: \e[0m"
 
 read reboot
 if [ ${reboot} = Y ] | [ ${reboot} = y ];then

@@ -110,8 +110,7 @@ echo "#安装必要组件" >> continue.sh
 echo "sudo pacman -S --noconfirm ntfs-3g" >> continue.sh
 echo "sudo pacman -S --noconfirm dosfstools" >> continue.sh
 echo "sudo pacman -S --noconfirm wqy-microhei" >> continue.sh
-echo "sudo pacman -S --noconfirm xorg-server" >> continue.sh
-echo "sudo pacman -S --noconfirm xorg-xinit" >> continue.sh
+echo "sudo pacman -S --noconfirm xorg-{server,xinit}" >> continue.sh
 echo "cp /etc/X11/xinit/xinitrc ~/.xinitrc" >> continue.sh
 echo "sed -i '\$d' ~/.xinitrc" >> continue.sh
 echo >> continue.sh
@@ -171,7 +170,7 @@ do
 		cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
 		chsh -s /bin/zsh
 		echo "cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc" >> continue.sh
-		echo "chsh -s /bin/zsh" >> continue.sh
+		echo "echo ${usrpasswd} | chsh -s /bin/zsh" >> continue.sh
 		echo >> continue.sh
 		break
 	elif [ ${zsh} = N ] || [ ${zsh} = n ];then
@@ -196,7 +195,7 @@ EOF
 
 
 
-read -p "请按回车继续"  var
+read -p "请按回车继续" var
 clear
 echo "现在，请选择一个桌面环境：1、gnome  2、plasma  3、xfce4  4、cinnamon  5、mate。  6、不安装"
 echo
@@ -213,7 +212,7 @@ case ${choose} in
 gnome)
 	echo "echo 'exec gnome-session' >> ~/.xinitrc" >> continue.sh
 	clear
-	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等（建议安装）"
+	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
 	echo
 	while true
 	do
@@ -238,7 +237,7 @@ xfce4)
 	echo "echo 'exec startxfce4' >> ~/.xinitrc" >> continue.sh
 	echo >> continue.sh
 	clear
-	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等（建议安装）"
+	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
 	echo
 	while true
 	do
@@ -263,7 +262,7 @@ cinnamon)
 mate)	
 	echo "echo 'exec mate-session' >> ~/.xinitrc" >> continue.sh
 	clear
-	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等（建议安装）"
+	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
 	echo
 	while true
 	do
@@ -342,7 +341,7 @@ echo >> continue.sh
 
 if [ ${choose} == 'gvim' ];then
 
-cat > ${usrnm}/.vimrc << EOF
+cat > /home/${usrnm}/.vimrc << EOF
 set nocompatible
 filetype indent on
 syntax enable
@@ -436,10 +435,10 @@ reset
 mv -f continue.sh /home/${usrnm}/continue.sh
 chmod 777 /home/${usrnm}/continue.sh
 mv continue.sh.backup continue.sh
-rm -rf /var/log/*
-rm -rf /var/tmp/*
-rm -rf /tmp/*
-rm -rf $(ls | grep -v "man") > /dev/null 2>&1
+rm -r /var/log/*
+rm -r /var/tmp/*
+rm -r /tmp/*
+cd /usr/share/man && rm -r $(ls /usr/share/man | grep -v "man") > /dev/null 2>&1
 #清理一些垃圾文件
 
 clear
