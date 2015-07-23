@@ -215,6 +215,7 @@ hwclock --systohc --utc
 
 
 
+echo
 read -p "Wich hostname would you like?: " hostnm
 echo "\${hostnm}" > /etc/hostname
 
@@ -227,8 +228,8 @@ echo "::1             localhost.localdomain   localhost \${hostnm}" >> /etc/host
 while true
 do
 
-	echo -en "\n\nDo you need wireless? Y/N\n
-	(If you want, I'll install dialog and wpa_supplicant to run wifi-menu.): "
+echo -en "\n\nDo you need wireless? Y/N\n
+(If you want, I'll install dialog and wpa_supplicant to run wifi-menu.): "
 	read wireless
 
 	case \${wireless} in
@@ -253,7 +254,7 @@ systemctl enable dhcpcd@\$(ls /sys/class/net/ | grep e)
 
 echo -en "\nPlease enter your root password that you like: "
 
-read -p rootpass
+read rootpass
 echo "root:\${rootpass}" | chpasswd
 
 
@@ -263,8 +264,8 @@ pacman -S --noconfirm grub
 while true
 do
 
-	echo -en "\n\nDo you need grub boot other system? Y/N\n
-	(If you want, I'll install os-prober): "
+echo -en "\n\nDo you need grub boot other system? Y/N\n
+(If you want, I'll install os-prober): "
 	read bootothersys
 
 	case \${bootothersys} in

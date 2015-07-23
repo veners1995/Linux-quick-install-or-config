@@ -343,17 +343,17 @@ echo >> continue.sh
 if [ ${choose} == 'gvim' ];then
 
 cat > ${usrnm}/.vimrc << EOF
-set nocompatible" > /etc/vimrc
-set nu" >> /etc/vimrc
-filetype indent on" >> /etc/vimrc
-syntax enable" >> /etc/vimrc
-colorscheme murphy" >> /etc/vimrc
-set nobackup" >> /etc/vimrc
-set nowritebackup" >> /etc/vimrc
-set noswapfile" >> /etc/vimrc
-set wrapscan" >> /etc/vimrc
-set ruler" >> /etc/vimrc
-set backspace=indent,eol,start" >> /etc/vimrc
+set nocompatible
+filetype indent on
+syntax enable
+colorscheme murphy
+set nu
+set nobackup
+set nowritebackup
+set noswapfile
+set wrapscan
+set ruler
+set backspace=indent,eol,start
 EOF
 
 fi
