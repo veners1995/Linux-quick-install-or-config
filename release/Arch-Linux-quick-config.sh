@@ -32,17 +32,12 @@ softwareInstallCmd['vlc']='sudo pacman -S --noconfirm vlc'
 softwareInstallCmd['mpv']='sudo pacman -S --noconfirm mpv'
 softwareInstallCmd['firefox']='sudo pacman -S --noconfirm firefox'
 softwareInstallCmd['opera']='sudo pacman -S --noconfirm opera'
-softwareInstallCmd['chromium']='sudo pacman -S --noconfirm chromium'
 #桌面环境
 softwareInstallCmd['gnome']='sudo pacman -S --noconfirm gnome'
 softwareInstallCmd['plasma']='sudo pacman -S --noconfirm plasma'
 softwareInstallCmd['xfce4']='sudo pacman -S --noconfirm xfce4'
 softwareInstallCmd['cinnamon']='sudo pacman -S --noconfirm {cinnamon,gnome-screenshot,mate-terminal,evince,viewnior,file-roller}'
 softwareInstallCmd['mate']='sudo pacman -S --noconfirm mate'
-#窗口管理器
-softwareInstallCmd['i3']='sudo pacman -S --noconfirm i3'
-softwareInstallCmd['openbox']='sudo pacman -S --noconfirm openbox'
-softwareInstallCmd['awesome']='sudo pacman -S --noconfirm awesome'
 
 function chooseSoftware
 {
@@ -115,8 +110,7 @@ echo "#安装必要组件" >> continue.sh
 echo "sudo pacman -S --noconfirm ntfs-3g" >> continue.sh
 echo "sudo pacman -S --noconfirm dosfstools" >> continue.sh
 echo "sudo pacman -S --noconfirm wqy-microhei" >> continue.sh
-echo "sudo pacman -S --noconfirm xorg-server" >> continue.sh
-echo "sudo pacman -S --noconfirm xorg-xinit" >> continue.sh
+echo "sudo pacman -S --noconfirm xorg-{server,xinit}" >> continue.sh
 echo "cp /etc/X11/xinit/xinitrc ~/.xinitrc" >> continue.sh
 echo "sed -i '\$d' ~/.xinitrc" >> continue.sh
 echo >> continue.sh
@@ -189,135 +183,102 @@ clear
 
 
 cat << EOF
-现在请您选择一个桌面环境或窗口管理器，我们当前提供：
+现在请您选择一个桌面环境：我们当前提供Gnome、Plasma（KDE5）、Xfce4、Cinnamon、和Mate
 
-桌面环境：Gnome、Plasma（KDE5）、Xfce4、Cinnamon、和Mate
-窗口管理器：i3(wm)、Openbox、Awesome
+如果没有您需要的（如窗口管理器，我们将在下个版本添加）或是您不需要桌面环境
+那么请选择不安装然后自行安装您喜欢的桌面环境（或窗口管理器）
 
 
-如果没有您需要的，那么请选择不安装然后自行安装您喜欢的桌面环境（或窗口管理器）
 我们还提供一些扩展包，这些将会在您选择您喜欢的桌面环境后提供选择。
 
 EOF
+
+
+
 read -p "请按回车继续" var
 clear
+echo "现在，请选择一个桌面环境：1、gnome  2、plasma  3、xfce4  4、cinnamon  5、mate。  6、不安装"
+echo
+echo "#安装桌面环境" >> continue.sh
 
-read -p "在继续之前请您选择使用桌面环境还是窗口管理器：1、桌面环境。2、窗口管理器。" display
 
-if [ ${display} == 1 ];then
 
-	echo "现在，请选择一个桌面环境：1、gnome  2、plasma  3、xfce4  4、cinnamon  5、mate  6、不安装"
+echo
+chooseSoftware 'gnome' 'plasma' 'xfce4' 'cinnamon' 'mate' '不安装桌面环境'
+#choose为保存用户选项的全局变量，定义于chooseSoftware函数中
+
+
+case ${choose} in
+gnome)
+	echo "echo 'exec gnome-session' >> ~/.xinitrc" >> continue.sh
+	clear
+	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
 	echo
-	echo "#安装桌面环境" >> continue.sh
+	while true
+	do
+		read -n1 -p "请输入Y/N：" ge
+		echo
+		if [ ${ge} = Y ] || [ ${ge} = y ];then
+			echo "sudo pacman -S --noconfirm gnome-extra" >> continue.sh
+			break
+		elif [ ${ge} = N ] || [ ${ge} = n ];then
+			break
+		fi
+	done
+	echo >> continue.sh
+;;
 
+plasma)	
+	echo "echo 'exec startkde' >> ~/.xinitrc" >> continue.sh
+	echo >> continue.sh
+;;
 
-
+xfce4)	
+	echo "echo 'exec startxfce4' >> ~/.xinitrc" >> continue.sh
+	echo >> continue.sh
+	clear
+	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
 	echo
-	chooseSoftware 'gnome' 'plasma' 'xfce4' 'cinnamon' 'mate' '不安装桌面环境'
-	#choose为保存用户选项的全局变量，定义于chooseSoftware函数中
+	while true
+	do
+		read -n1 -p "请输入Y/N：" ge
+		echo
+		if [ ${ge} = Y ] || [ ${ge} = y ];then
+			break
+			echo "sudo pacman -S --noconfirm xfce4-goodies" >> continue.sh
+		elif [ ${ge} = N ] || [ ${ge} = n ];then
+			break
+		fi
+	done
+	echo >> continue.sh
+;;
 
+cinnamon)	
+	echo "echo 'exec cinnamon-session' >> ~/.xinitrc" >> continue.sh
+	clear
+	echo >> continue.sh
+;;
 
-	case ${choose} in
-		gnome)
-			echo "echo 'exec gnome-session' >> ~/.xinitrc" >> continue.sh
-			clear
-			echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
-			echo
-			while true
-			do
-				read -n1 -p "请输入Y/N：" ge
-				echo
-				if [ ${ge} = Y ] || [ ${ge} = y ];then
-					echo "sudo pacman -S --noconfirm gnome-extra" >> continue.sh
-					break
-				elif [ ${ge} = N ] || [ ${ge} = n ];then
-					break
-				fi
-			done
-			echo >> continue.sh
-			;;
-
-		plasma)	
-			echo "echo 'exec startkde' >> ~/.xinitrc" >> continue.sh
-			echo >> continue.sh
-			;;
-
-		xfce4)	
-			echo "echo 'exec startxfce4' >> ~/.xinitrc" >> continue.sh
-			echo >> continue.sh
-			clear
-			echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
-			echo
-			while true
-			do
-				read -n1 -p "请输入Y/N：" ge
-				echo
-				if [ ${ge} = Y ] || [ ${ge} = y ];then
-					break
-					echo "sudo pacman -S --noconfirm xfce4-goodies" >> continue.sh
-				elif [ ${ge} = N ] || [ ${ge} = n ];then
-					break
-				fi
-			done
-			echo >> continue.sh
-			;;
-
-		cinnamon)	
-			echo "echo 'exec cinnamon-session' >> ~/.xinitrc" >> continue.sh
-			echo >> continue.sh
-			clear
-			;;
-
-		mate)	
-			echo "echo 'exec mate-session' >> ~/.xinitrc" >> continue.sh
-			clear
-			echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
-			echo
-			while true
-			do
-				read -n1 -p "请输入Y/N：" ge
-				echo
-				if [ ${ge} = Y ] || [ ${ge} = y ];then
-					echo "sudo pacman -S  --noconfirm mate-extra" >> continue.sh
-					break
-				elif [ ${ge} = N ] || [ ${ge} = n ];then
-					break
-				fi
-			done
-			echo >> continue.sh
-			;;
-	esac
-
-elif [ ${display} == 2 ];then
-
-
-	echo "现在，请选择一个窗口管理器：1、i3(wm)  2、Openbox  3、Awesome  4、不安装"
+mate)	
+	echo "echo 'exec mate-session' >> ~/.xinitrc" >> continue.sh
+	clear
+	echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
 	echo
-	echo "#安装窗口管理器" >> continue.sh
-
-
-	echo
-	chooseSoftware 'i3' 'openbox' 'awesome' '不安装窗口管理器'
-
-
-	case ${choose} in
-		i3)
-			echo "echo 'exec i3' ~/.xinitrc" >> continue.sh
-			echo >> continue.sh
-			clear
-			;;
-
-		openbox)	
-			echo "echo 'exec openbox-session' ~/.xinitrc" >> continue.sh
-			echo "mkdir -p ~/.config/openbox" >> continue.sh
-			echo "cp /etc/xdg/openbox/{rc.xml,menu.xml,autostart,environment} ~/.config/openbox" >> continue.sh
-			echo >> continue.sh
-			;;
-		awesome)
-			echo "echo 'exec awesome' ~/.xinitrc" >> continue.sh
-			;;
-	esac
-fi
+	while true
+	do
+		read -n1 -p "请输入Y/N：" ge
+		echo
+		if [ ${ge} = Y ] || [ ${ge} = y ];then
+			echo "sudo pacman -S  --noconfirm mate-extra" >> continue.sh
+			break
+		elif [ ${ge} = N ] || [ ${ge} = n ];then
+			break
+		fi
+	done
+	echo >> continue.sh
+	break
+;;
+esac
 
 
 
@@ -417,10 +378,10 @@ clear
 
 
 cat << EOF
-现在，我们可以开始安装浏览器了：我们当前提供有firefox、opera和chromium
+现在，我们可以开始安装浏览器了：我们当前提供有firefox和opera
 
 
-还是像刚才一样：1、firefox  2、opera 3、chromium 4、不安装
+还是像刚才一样：1、firefox  2、opera 3、不安装
 
 EOF
 
@@ -430,7 +391,7 @@ echo "#安装网页浏览器" >> continue.sh
 echo "sudo pacman -S --noconfirm flashplugin" >> continue.sh
 
 echo
-chooseSoftware 'firefox' 'opera' 'chromium' '不安装网页浏览器'
+chooseSoftware 'firefox' 'opera' '不安装网页浏览器'
 clear
 if [ ${choose} == 'firefox' ];then
 	echo "请问您是否要安装Firefox的中文支持？安装后浏览器将改为中文界面。"

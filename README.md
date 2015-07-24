@@ -3,6 +3,13 @@
 欢迎来到Linux quick install or config。<br>
 我们致力于开发开源简单的Linux快速安装（或配置）的Shell脚本。<br>
 
+## Tips
+
+release文件夹内存放的是稳定版本的脚本，推荐大家使用<br>
+主目录下的为测试用的脚本，功能更新、更全。但是可能会有一些bug。<br>
+大家可以*谨慎使用*，我们也欢迎大家帮忙测试。如果测试没有bug可以告诉我们。<br>
+
+
 ## Installation 
 
 #### Kali Linux quick config
@@ -30,9 +37,8 @@ fbterm
 现在tty就可以正常显示中文了，之后输入这些：<br>
 ```
 git clone --depth=1 https://github.com/Guanrenfu/Linux-quick-install-or-config
-cd Linux-quick-install-or-config/ALS
-chmod +x ArchLinuxShell.sh
-./ArchLinuxShell.sh
+cd Linux-quick-install-or-config/release
+./Arch-Linux-quick-config.sh
 ```
 好了，之后根据提示做就可以了。<br>
 
