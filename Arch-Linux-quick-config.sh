@@ -20,38 +20,25 @@ fi
 
 mv -f continue.sh continue.sh.backup 2>> /dev/null
 
-#将安装软件所需命令放入关联数组
-declare -A softwareInstallCmd
-#软件
-softwareInstallCmd['gvim']='sudo pacman -S --noconfirm gvim'
-softwareInstallCmd['emacs']='sudo pacman -S --noconfirm emacs'
-softwareInstallCmd['gedit']='sudo pacman -S --noconfirm gedit'
-softwareInstallCmd['leafpad']='sudo pacman -S --noconfirm leafpad'
-softwareInstallCmd['smplayer']='sudo pacman -S --noconfirm smplayer'
-softwareInstallCmd['vlc']='sudo pacman -S --noconfirm vlc'
-softwareInstallCmd['mpv']='sudo pacman -S --noconfirm mpv'
-softwareInstallCmd['firefox']='sudo pacman -S --noconfirm firefox'
-softwareInstallCmd['opera']='sudo pacman -S --noconfirm opera'
-softwareInstallCmd['chromium']='sudo pacman -S --noconfirm chromium'
-#桌面环境
-softwareInstallCmd['gnome']='sudo pacman -S --noconfirm gnome'
-softwareInstallCmd['plasma']='sudo pacman -S --noconfirm plasma'
-softwareInstallCmd['xfce4']='sudo pacman -S --noconfirm xfce4'
-softwareInstallCmd['cinnamon']='sudo pacman -S --noconfirm {cinnamon,gnome-screenshot,mate-terminal,evince,viewnior,file-roller}'
-softwareInstallCmd['mate']='sudo pacman -S --noconfirm mate'
-#窗口管理器
-softwareInstallCmd['i3']='sudo pacman -S --noconfirm i3'
-softwareInstallCmd['openbox']='sudo pacman -S --noconfirm openbox'
-softwareInstallCmd['awesome']='sudo pacman -S --noconfirm awesome'
+installCodeGenerator()
+{
+	echo "sudo pacman -S --noconfirm ${1}"
+}
 
-function chooseSoftware
+# @brief  用菜单选择待安装的软件
+# @param   第一个参数为安装软件的类型(类别)
+#			其余参数为所有待安装软件的名称
+# @return 全局变量choose是保存用户的选项
+chooseSoftware()
 {
 	PS3='请输入选项：'
+	echo "#安装${1}" >> continue.sh
+	shift
 	select choose in "$@";do
 		if [ ${choose:-NONE} == 'NONE' ];then
 			continue;
 		elif [ ${choose} != '不安装' ];then
-			echo -e ${softwareInstallCmd[${choose}]} >> continue.sh
+			installCodeGenerator ${choose} >> continue.sh
 			break
 		else
 			echo '#${choose}' >> continue.sh
@@ -112,11 +99,11 @@ clear
 
 echo
 echo "#安装必要组件" >> continue.sh
-echo "sudo pacman -S --noconfirm ntfs-3g" >> continue.sh
-echo "sudo pacman -S --noconfirm dosfstools" >> continue.sh
-echo "sudo pacman -S --noconfirm wqy-microhei" >> continue.sh
-echo "sudo pacman -S --noconfirm xorg-server" >> continue.sh
-echo "sudo pacman -S --noconfirm xorg-xinit" >> continue.sh
+installCodeGenerator "ntfs-3g" >> continue.sh
+installCodeGenerator "dosfstools" >> continue.sh
+installCodeGenerator "wqy-microhei" >> continue.sh
+installCodeGenerator "xorg-server" >> continue.sh
+installCodeGenerator "xorg-xinit" >> continue.sh
 echo "cp /etc/X11/xinit/xinitrc ~/.xinitrc" >> continue.sh
 echo "sed -i '\$d' ~/.xinitrc" >> continue.sh
 echo >> continue.sh
@@ -163,30 +150,17 @@ clear
 
 echo "请问您是否想安装Zsh？Zsh拥有比默认的Bash更加方便的设置与外观。"
 
-while true
-do
-	read -n1 -p "请输入Y或N：" zsh
-	echo
-
-	if [ ${zsh} = Y ] || [ ${zsh} = y ];then
-		echo "#安装zsh" >> continue.sh
-		pacman -S --noconfirm zsh
-		git clone https://github.com/robbyrussell/oh-my-zsh ~/.oh-my-zsh
-		cp -rf ~/.oh-my-zsh /home/${usrnm}/.oh-my-zsh
-		cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-		chsh -s /bin/zsh
-		echo "cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc" >> continue.sh
-		echo "echo ${usrpasswd} | chsh -s /bin/zsh" >> continue.sh
-		echo >> continue.sh
-		break
-	elif [ ${zsh} = N ] || [ ${zsh} = n ];then
-		echo "#不安装Zsh" >> continue.sh
-		break
-	fi
-done
+chooseSoftware "Zsh" "zsh" "不安装Zsh"
+if [ ${choose} == "zsh" ];then
+	git clone https://github.com/robbyrussell/oh-my-zsh ~/.oh-my-zsh
+	cp -rf ~/.oh-my-zsh /home/${usrnm}/.oh-my-zsh
+	cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+	chsh -s /bin/zsh
+	echo "cp -f ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc" >> continue.sh
+	echo "echo ${usrpasswd} | chsh -s /bin/zsh" >> continue.sh
+	echo >> continue.sh
+fi
 clear
-
-
 
 cat << EOF
 现在请您选择一个桌面环境或窗口管理器，我们当前提供：
@@ -205,17 +179,8 @@ clear
 read -p "在继续之前请您选择使用桌面环境还是窗口管理器：1、桌面环境。2、窗口管理器。" display
 
 if [ ${display} == 1 ];then
-
-	echo "现在，请选择一个桌面环境：1、gnome  2、plasma  3、xfce4  4、cinnamon  5、mate  6、不安装"
 	echo
-	echo "#安装桌面环境" >> continue.sh
-
-
-
-	echo
-	chooseSoftware 'gnome' 'plasma' 'xfce4' 'cinnamon' 'mate' '不安装桌面环境'
-	#choose为保存用户选项的全局变量，定义于chooseSoftware函数中
-
+	chooseSoftware '桌面环境' 'gnome' 'plasma' 'xfce4' 'cinnamon' 'mate' '不安装桌面环境'
 
 	case ${choose} in
 		gnome)
@@ -228,7 +193,7 @@ if [ ${display} == 1 ];then
 				read -n1 -p "请输入Y/N：" ge
 				echo
 				if [ ${ge} = Y ] || [ ${ge} = y ];then
-					echo "sudo pacman -S --noconfirm gnome-extra" >> continue.sh
+					installCodeGenerator "gnome-extra" >> continue.sh
 					break
 				elif [ ${ge} = N ] || [ ${ge} = n ];then
 					break
@@ -246,19 +211,8 @@ if [ ${display} == 1 ];then
 			echo "echo 'exec startxfce4' >> ~/.xinitrc" >> continue.sh
 			echo >> continue.sh
 			clear
-			echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
-			echo
-			while true
-			do
-				read -n1 -p "请输入Y/N：" ge
-				echo
-				if [ ${ge} = Y ] || [ ${ge} = y ];then
-					break
-					echo "sudo pacman -S --noconfirm xfce4-goodies" >> continue.sh
-				elif [ ${ge} = N ] || [ ${ge} = n ];then
-					break
-				fi
-			done
+			chooseSoftware "${choose}扩展包" "xfce4-goodies" "不安装${choose}扩展包(其中包含了很多${choose}的原生软件和一些主题等)"
+			
 			echo >> continue.sh
 			;;
 
@@ -271,34 +225,15 @@ if [ ${display} == 1 ];then
 		mate)	
 			echo "echo 'exec mate-session' >> ~/.xinitrc" >> continue.sh
 			clear
-			echo "请问您是否要安装${choose}扩展包？其中包含了很多${choose}的原生软件和一些主题等"
-			echo
-			while true
-			do
-				read -n1 -p "请输入Y/N：" ge
-				echo
-				if [ ${ge} = Y ] || [ ${ge} = y ];then
-					echo "sudo pacman -S  --noconfirm mate-extra" >> continue.sh
-					break
-				elif [ ${ge} = N ] || [ ${ge} = n ];then
-					break
-				fi
-			done
+			chooseSoftware "${choose}扩展包" "mate-extra" "不安装${choose}扩展包(其中包含了很多${choose}的原生软件和一些主题等)"
+			
 			echo >> continue.sh
 			;;
 	esac
 
 elif [ ${display} == 2 ];then
-
-
-	echo "现在，请选择一个窗口管理器：1、i3(wm)  2、Openbox  3、Awesome  4、不安装"
 	echo
-	echo "#安装窗口管理器" >> continue.sh
-
-
-	echo
-	chooseSoftware 'i3' 'openbox' 'awesome' '不安装窗口管理器'
-
+	chooseSoftware '窗口管理器' 'i3' 'openbox' 'awesome' '不安装窗口管理器'
 
 	case ${choose} in
 		i3)
@@ -326,7 +261,7 @@ clear
 echo "恭喜您完成了多半的配置了，现在让我们来看一下几个日常用的软件吧："
 echo
 echo "#安装Networkmanager网络管理器" >> continue.sh
-echo "sudo pacman -S --noconfirm networkmanager" >> continue.sh
+installCodeGenerator "networkmanager" >> continue.sh
 echo "sudo systemctl enable NetworkManager" >> continue.sh
 echo "sudo systemctl start NetworkManager" >> continue.sh
 echo >> continue.sh
@@ -373,9 +308,7 @@ cat << EOF
 
 EOF
 
-echo "#安装文本编辑器" >> continue.sh
-
-chooseSoftware 'gvim' 'emacs' 'gedit' 'leafpad' '不安装文本编辑器'
+chooseSoftware '文本编辑器' 'gvim' 'emacs' 'gedit' 'leafpad' '不安装文本编辑器'
 echo >> continue.sh
 
 if [ ${choose} == 'gvim' ];then
@@ -407,39 +340,24 @@ cat << EOF
 
 EOF
 
-echo "#安装视频播放器" >> continue.sh
-
 echo
-chooseSoftware 'smplayer' 'vlc' 'mpv' '不安装视频播放器' 
+chooseSoftware '视频播放器' 'smplayer' 'vlc' 'mpv' '不安装视频播放器' 
 echo >> continue.sh
 clear
-
 
 
 cat << EOF
 现在，我们可以开始安装浏览器了：我们当前提供有firefox、opera和chromium
 
-
-还是像刚才一样：1、firefox  2、opera 3、chromium 4、不安装
-
 EOF
 
-
-
-echo "#安装网页浏览器" >> continue.sh
-echo "sudo pacman -S --noconfirm flashplugin" >> continue.sh
-
 echo
-chooseSoftware 'firefox' 'opera' 'chromium' '不安装网页浏览器'
+chooseSoftware '网页浏览器' 'firefox' 'opera' 'chromium' '不安装网页浏览器'
 clear
 if [ ${choose} == 'firefox' ];then
-	echo "请问您是否要安装Firefox的中文支持？安装后浏览器将改为中文界面。"
-	echo
-	read -n1 -p "请输入Y/N：" chs
-	if [ ${chs} = Y ] || [ ${chs} = y ];then
-		echo "sudo pacman -S --noconfirm firefox-i18n-zh-cn" >> continue.sh
-	fi
+	chooseSoftware "Firefox的中文支持" "firefox-i18n-zh-cn" "不安装Firefox的中文支持(安装后浏览器将改为中文界面。)"
 fi
+installCodeGenerator "flashplugin" >> continue.sh
 echo >> continue.sh
 clear
 
@@ -450,27 +368,14 @@ cat << EOF
 
 如果不安装这个驱动触摸板将不会工作,如果您确实是上述的情况请安装触摸板驱动：
 
-
 EOF
 
-while true
-do
-	read -n1 -p "请输入Y/N：" syna
-	
-	if [ ${syna} = Y ] || [ ${syna} = y ];then
-		echo "#安装触摸板驱动" >> continue.sh
-		echo "sudo pacman -S --noconfirm  xf86-input-synaptics" >> continue.sh
-		echo >> continue.sh
-		break
-	fi
+chooseSoftware "触摸板驱动" "xf86-input-synaptics" "不安装触摸板驱动"
+echo >> continue.sh
 
-	if [ ${syna} = N ] || [ ${syna} = n ];then
-		echo "#不安装触摸板驱动"
-		break
-	fi
-done
 
 reset
+#清理一些垃圾文件
 mv -f continue.sh /home/${usrnm}/continue.sh
 chmod 777 /home/${usrnm}/continue.sh
 mv continue.sh.backup continue.sh
@@ -478,7 +383,6 @@ rm -r /var/log/*
 rm -r /var/tmp/*
 rm -r /tmp/*
 cd /usr/share/man && rm -r $(ls /usr/share/man | grep -v "man") > /dev/null 2>&1
-#清理一些垃圾文件
 
 clear
 cat << EOF
