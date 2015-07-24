@@ -18,9 +18,8 @@ release文件夹内存放的是稳定版本的脚本，推荐大家使用<br>
 在您联网的时候，复制下面这些代码到终端：<br>
 ```
 git clone --depth=1 https://github.com/Guanrenfu/Linux-quick-install-or-config
-cd Linux-quick-install-or-config/KLS
-chmod +x KaliLinuxShell.sh
-./KaliLinuxShell.sh
+cd Linux-quick-install-or-config/release
+./Kali-Linux-quick-config.sh
 ```
 然后您无需操作，只需要等待完成即可。然后您就可以享受您的Kali了。<br>
 
