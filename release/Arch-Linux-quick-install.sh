@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and 
 # limitations under the License. 
 if [ ${UID} != 0 ];then
-	echo "You're not root. You need run this script as root."
+	echo "Must be root."
+	exit
 fi
 
 reset

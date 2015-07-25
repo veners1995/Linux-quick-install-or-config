@@ -15,7 +15,8 @@
 # limitations under the License. 
 
 if [ ${UID} != 0 ];then
-	echo "You're not root. You need run this script as root."
+	echo "Must be root."
+	exit
 fi
 
 mv -f continue.sh continue.sh.backup 2>> /dev/null
