@@ -375,14 +375,9 @@ echo >> continue.sh
 
 
 reset
-#清理一些垃圾文件
 mv -f continue.sh /home/${usrnm}/continue.sh
 chmod 777 /home/${usrnm}/continue.sh
 mv continue.sh.backup continue.sh
-rm -r /var/log/*
-rm -r /var/tmp/*
-rm -r /tmp/*
-cd /usr/share/man && rm -r $(ls /usr/share/man | grep -v "man") > /dev/null 2>&1
 
 clear
 cat << EOF
