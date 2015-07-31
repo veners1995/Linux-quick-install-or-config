@@ -358,27 +358,7 @@ echo "#安装文本编辑器" >> continue.sh
 
 chooseSoftware 'gvim' 'emacs' 'gedit' 'leafpad' '不安装文本编辑器'
 echo >> continue.sh
-
-if [ ${choose} == 'gvim' ];then
-
-	cat >> /home/${usrnm}/.vimrc <<- EOF
-	set nocompatible
-	filetype indent on
-	syntax enable
-	colorscheme murphy
-	set nu
-	set nobackup
-	set nowritebackup
-	set noswapfile
-	set wrapscan
-	set ruler
-	set backspace=indent,eol,start
-	EOF
-
-fi
 clear
-
-
 
 cat << EOF
 现在，我们来挑选一个音视播放器。本版本提供SMPlayer、mpv和VLC。
